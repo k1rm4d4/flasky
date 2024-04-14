@@ -38,4 +38,9 @@ class User(UserMixin, db.Model):
 
 @login_manager.user_loader
 def load_user(user_id):
+    """
+    Returns the user object with given user_id
+
+    return None if the user_id is invalid. 
+    """
     return User.query.get(int(user_id))
