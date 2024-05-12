@@ -1,5 +1,8 @@
 import unittest 
+import time 
 from app.models import User 
+from app import create_app, db 
+
 
 class UserModelTestCase(unittest.TestCase):
     def test_password_setter(self):
@@ -20,3 +23,18 @@ class UserModelTestCase(unittest.TestCase):
         u = User(password='cat')
         u2 = User(password='cat')
         self.assertTrue(u.password_hash != u2.password_hash)
+
+    def test_valid_confirmation_token(self):
+        u = User(password='cat')
+        db.session.add(u)
+        db.session.commit()
+        token = u.generate_confirmation_token()
+        self.assertTrue(u.confirm(token=token))
+
+    def test_expired_confirmation_token(self):
+        u = User(password='cat')
+        db.session.add(u)
+        db.session.commit()
+        token = u.generate_confirmation_token(expiration=1)
+        time.sleep(2)
+        self.assertFalse(u.confirm(token))
