@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Flasky{% endblock %}
+{% block head %}
+    {{ super() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.getElementById('resendBtn').addEventListener('click', async (event) => {
+                event.preventDefault();
+
+                try {
+                    let response = await fetch("{{ url_for('auth.resend_confirmation') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                    });
+
+                    if (response.ok) {
+                        let result = await response.json();
+                        if (result.success) {
+                            alert('Button was clicked!');
+                        }
+                    } else {
+                        console.error('Error:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block page_content %}
+
+<div class="page-header">
+    <h1>Hello</h1>
+    <br>
+    <h3>
+        {%if current_user.is_authenticated and current_user.confirmed %}
+            {{ current_user.username }}
+        {% else %}
+            Your account is not confirmed. Please send confirm email again to confirm.
+        {% endif %}
+    </h3>
+    <button id='resendBtn' onclick="{{ url_for('main.index') }}">Resend</button>
+</div>
+{% endblock %}
